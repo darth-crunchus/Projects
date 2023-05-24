@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Path to your music library
-music_library="/mnt/e/Music"
+music_library=/path/to/music/library
 
 # Log file path
 log_file=$HOME/.music.log
