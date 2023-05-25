@@ -185,7 +185,7 @@ if [[ -s $1 ]]; then
                      <LibraryPath>/Artist/Album/<Disc #>/<tracks> for multi-disc albums.
                      
         where:
-        --keep-log|-k     If provided, the keep lof flag prevents the script from clearing the log when finished running.
+        --keep-log|-k     If provided, the keep log flag prevents the script from clearing the log when finished running.
             --help|-h     Show this help message and exit."
         exit
     fi
