@@ -7,7 +7,7 @@
 #                 -or-
 #                 <Library>/Artist/Album/Disc#/*tracks*
 #
-# Author: Stephen Conklin & ChatGPT
+# Author: darth_crunchus & ChatGPT
 
 
 
