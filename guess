@@ -1,0 +1,226 @@
+#!/usr/bin/env bash
+#============================================================================
+#
+#        Title:  guess
+#
+#        Usage:  ./guess
+#
+#  Description:  A random number guessing game for the command line
+#
+#      Options:  ---
+# Requirements:  ---
+#         Bugs:  ---
+#        Notes:  ---
+#       Author:  Stephen Conklin
+#      Company:
+#      Version:  1.0
+#      Created:  10/15/2022
+#     Revision:  ---
+#============================================================================
+#
+#      License: GNU General Public License
+#
+#   This program is free software: you can redistribute it and/or modify
+#   it under the terms of the GNU General Public License as published by
+#   the Free Software Foundation, either version 3 of the License, or
+#   (at your option) any later version.
+#
+#   This program is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#   GNU General Public License for more details.
+#
+#   You should have received a copy of the GNU General Public License
+#   along with this program.  If not, see <https://www.gnu.org/licenses/>
+#============================================================================
+
+#============================================================================
+# History
+#============================================================================
+#
+#
+#============================================================================
+
+#   __ _ _   _  ___ ___ ___
+#  / _` | | | |/ _ / __/ __|
+# | (_| | |_| |  __\__ \__ \
+#  \__, |\__,_|\___|___|___/
+#  |___/
+
+#############################################################################
+## VARIABLES                                                               ##
+#############################################################################
+
+if uname -r | grep -q "microsoft"
+then
+    # Script is running under WSL.  Use "whoami", as WSL doesn't actually log
+    # the user into linux
+    user=$(powershell.exe whoami | sed 's/\r//g' | cut -d\\ -f2)
+else
+    # Script is being run on an actual machine.  Use "logname"
+    user=$(logname)
+fi
+progname="guess"
+guess=0
+win=0 
+think=$((RANDOM % 5))
+#############################################################################
+## FUNCTIONS                                                               ##
+#############################################################################
+
+function checkinput() {
+
+    # Validate arg: returns 0 if all digits; 1 otherwise
+
+    # Remove all unacceptable chars.
+    validchars="$(echo $1 | sed -e 's/[^[:digit:]]//g')"
+
+    if [ "$validchars" = "$1" ] ; then  # If there's no discrepancy, all is well
+        return 0
+    else
+        return 1
+    fi
+
+}
+
+function guess() {
+    guesschk=0
+    while [ $guesschk -ne 1 ]
+    do
+        echo ""
+        if [ $guess -lt 1 ]; then
+            echo -n "Enter your first guess: "
+            read -r myGuess
+
+            checkinput $myGuess
+
+            if [ $? -eq 1 ];then
+                echo "Sorry, $user, but your guess can only contain numbers. Try again."
+                ((guess=guess+1))
+            else
+                ((guess=guess+1))
+                guesschk=1
+            fi
+        else
+            echo ""
+            echo -n "Enter another guess: "
+            read -r myguess
+
+            checkinput $myguess
+
+            if [ $? -eq 1 ];then
+                echo "Sorry, $user, but your guess can only contain numbers. Try again."
+                ((guess=guess+1))
+            else
+                ((guess=guess+1))
+                guesschk=1
+            fi
+        fi
+    done
+}
+
+function yesno() {
+
+    echo -n "$1? [y/N] "
+    read -r response
+    case ${response:-n} in
+        [yY]|[Yy][Ee][Ss]) response=y ;;
+            [nN]|[Nn][Oo]) response=n ;;
+                        *) response=invalid ;;
+    esac
+
+}
+#############################################################################
+## MAIN SCRIPT                                                             ##
+#############################################################################
+
+clear
+echo -n "Hi, $user.  Choose the highest number for this game: "
+read -r range
+
+checkinput $range
+if [ $? -eq 1 ]; then
+    echo "$progname: invalid input \"$range\": must be numbers only." >&2
+    exit 2
+fi
+
+echo -n "Hmmm...1 to $range, huh?  Alright. Let me think of a number."
+num=$((RANDOM % range))
+
+if [[ $num -lt 1 ]]; then
+
+    num=1
+elif [[ $num -gt $range ]]; then
+    num=$range
+fi
+
+sleep $think
+echo ""
+echo "Okay! I have my number!"
+guess
+
+until [[ $win -eq 1 ]]; do
+
+    if [[ "$myguess" -eq $NUM ]]
+    then
+    
+        win=1
+
+    fi
+
+    if [[ "$myguess" -lt $num ]]
+    then
+    
+        echo -n "Sorry, $user, my number is HIGHER than that. Try again."
+        guess
+
+    fi
+
+    if [[ "$myguess" -gt $num ]]
+    then
+    
+        echo -n "Sorry, $user, my number is LOWER than that. Try again."
+        guess
+
+    fi
+done
+
+echo ""
+echo "Yay! You guessed my number!"
+if [[ $guess -lt 2 ]]
+then
+    echo "It took you only 1 try!"
+
+else
+    echo "It took you $guess tries."
+fi
+
+echo ""
+yesno "Want to play again"
+
+if [ "$response" = "y" ]; then
+    
+    echo ""
+    echo "Alright!  Here we go!"
+    sleep 5
+    exec guess
+
+fi
+
+if [[ "$response" = "n" ]]; then
+
+    echo "Thanks for playing!"
+    echo ""
+    exit
+
+fi
+
+if [[ "$response" = "invalid" ]]; then
+
+    echo "Invalid response."
+    echo ""
+    yesno "Want to play again"
+
+fi
+
+exit 0
