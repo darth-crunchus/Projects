@@ -1,0 +1,142 @@
+#!/bin/bash
+# Name: ring-aspect
+#
+# Desc: A small script to calculate what size jump rings
+#       to use for a desired jump ring aspect ratio.
+
+# Aspect ratio is provided by the user as an argument.
+# If no argument is provided, print a usage message and
+# exit.
+
+if [[ $# -lt 1 ]]
+then
+    echo "$(basename "$0"): Error: Missing parameter: Jump ring aspect ratio
+
+
+ring-aspect: A simple script to help you choose jump ring sizes for
+             chainmaille projects, based on a desired ring aspect
+             ratio provided.  Uses common jewelry wire gauges, and
+             provides inner diameters in both millimeters and thou-
+             sandths of an inch for both AWG and SWG wire stock.
+
+Usage: $(basename "$0") <desired-AR> [--awg/--swg]
+
+Jump ring aspect ratio may be entered as either a whole number
+(4), or with a decimal point (6.6).
+
+Wire diameter scale is optional, as it defaults to the AWG scale.
+However, the following options may be used:
+
+    -a | --awg  The script will use the American Wire Gauge
+    -s | --swg  The script will use the British Standard Wire Gauge
+
+Options are case-insensitive.
+"
+    exit
+fi
+
+aspect="$(echo "$1" | sed -e 's/[^[:digit:]\.]*//g')"
+if [[ "$aspect" != "$1" ]]
+then
+    echo "$(basename "$0"): Error: Invalid input: Ring aspect ratio may only consist of numbers and a decimal point." >&2
+    exit 1
+fi
+
+case ${2:---awg} in
+    -[Aa]|--[aA][wW][gG])
+        # Wire diameters (AWG)
+        scale="AWG"
+        # Metric
+        dia24gam=0.511
+        dia22gam=0.644
+        dia20gam=0.812
+        dia19gam=0.912
+        dia18gam=1.024
+        dia16gam=1.291
+        dia14gam=1.628
+        dia12gam=2.053
+        dia10gam=2.588
+
+        # Imperial
+        dia24gai=0.0201
+        dia22gai=0.0253
+        dia20gai=0.0320
+        dia19gai=0.0359
+        dia18gai=0.0403
+        dia16gai=0.0508
+        dia14gai=0.0641
+        dia12gai=0.0808
+        dia10gai=0.1019
+    ;;
+
+    -[Ss]|--[sS][wW][gG])
+        # Wire diameters (SWG)
+        scale="SWG"
+        # Metric
+        dia24gam=0.559
+        dia22gam=0.711
+        dia20gam=0.914
+        dia19gam=1.016
+        dia18gam=1.219
+        dia16gam=1.626
+        dia14gam=2.032
+        dia12gam=2.642
+        dia10gam=3.251
+        # Imperial
+        dia24gai=0.022
+        dia22gai=0.028
+        dia20gai=0.036
+        dia19gai=0.040
+        dia18gai=0.048
+        dia16gai=0.064
+        dia14gai=0.080
+        dia12gai=0.104
+        dia10gai=0.128
+    ;;
+
+    *)
+        echo "$(basename "$0"): Error: Invalid option: $2" >&2
+        exit 2
+    ;;
+esac
+
+
+id24gam="$(echo "scale=2;$dia24gam * $aspect" | bc)"
+id22gam="$(echo "scale=2;$dia22gam * $aspect" | bc)"
+id20gam="$(echo "scale=2;$dia20gam * $aspect" | bc)"
+id19gam="$(echo "scale=2;$dia19gam * $aspect" | bc)"
+id18gam="$(echo "scale=2;$dia18gam * $aspect" | bc)"
+id16gam="$(echo "scale=2;$dia16gam * $aspect" | bc)"
+id14gam="$(echo "scale=2;$dia14gam * $aspect" | bc)"
+id12gam="$(echo "scale=2;$dia12gam * $aspect" | bc)"
+id10gam="$(echo "scale=2;$dia10gam * $aspect" | bc)"
+
+id24gai="$(echo "scale=2;$dia24gai * $aspect" | bc)"
+id22gai="$(echo "scale=2;$dia22gai * $aspect" | bc)"
+id20gai="$(echo "scale=2;$dia20gai * $aspect" | bc)"
+id19gai="$(echo "scale=2;$dia19gai * $aspect" | bc)"
+id18gai="$(echo "scale=2;$dia18gai * $aspect" | bc)"
+id16gai="$(echo "scale=2;$dia16gai * $aspect" | bc)"
+id14gai="$(echo "scale=2;$dia14gai * $aspect" | bc)"
+id12gai="$(echo "scale=2;$dia12gai * $aspect" | bc)"
+id10gai="$(echo "scale=2;$dia10gai * $aspect" | bc)"
+
+echo "For an Aspect Ratio of $aspect, choose from the following sized jump rings:
+
+$scale
+
+Wire Dia.  Inner Dia.
+           (mm)      (in)
+24ga       $id24gam     $id24gai\"
+22ga       $id22gam     $id22gai\" 
+20ga       $id20gam     $id20gai\"
+19ga       $id19gam     $id19gai\"
+18ga       $id18gam     $id18gai\"
+16ga       $id16gam     $id16gai\"
+14ga       $id14gam     $id14gai\"
+12ga       $id12gam     $id12gai\"
+10ga       $id10gam     $id10gai\"
+
+Note: Wire gauge availability may differ, depending on material used.
+"
+

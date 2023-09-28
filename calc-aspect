@@ -1,0 +1,21 @@
+#! /bin/bash
+
+read -p "Enter jump ring internal diameter: " jrid
+test="$(echo "$jrid" | sed -e 's/[^[:digit:]\.]*//g')"
+if [ "$test" != "$jrid" ]
+then
+    echo "$(basename "$0"): Error: Invalid input: Ring internal diameter may only consist of numbers and a decimal point." >&2
+    exit 1
+fi
+echo ""
+read -p "Enter jump ring wire diameter: " jrwd
+test="$(echo "$jrwd" | sed -e 's/[^[:digit:]\.]*//g')"
+if [ "$test" != "$jrwd" ]
+then
+    echo "$(basename "$0"): Error: Invalid input: Ring wire diameter may only consist of numbers and a decimal point." >&2
+    exit 1
+fi
+echo ""
+jrar="$(echo "scale=2;$jrid / $jrwd" | bc)"
+echo "The aspect ratio of the specified jump ring is $jrar."
+exit
