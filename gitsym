@@ -5,7 +5,7 @@ githome="/home/$USER/githome"       # Set the location where the provided reposi
                                     # reflect the structure of your system
 
 if [[ $# -eq 0 ]]; then     # No args? That's a problem. Let the user know and exit
-    echo "$(basename "$0"): Error: missing parameter: source repository" >&2
+    echo "$(basename "$0"): missing parameter: source repository" >&2
     echo
     echo "    Usage: $(basename "$0") <src-repo> <destination>" >&2
     exit 1
@@ -26,28 +26,28 @@ elif [[ $1 = -* ]]; then    # The user is entering a flag
             exit 0
             ;;
         *)      # Anything else is rejected
-            echo "$(basename "$0"): Error: invalid option: '$1'" >&2
+            echo "$(basename "$0"): invalid option -- '$1'" >&2
             exit
             ;;
     esac
 elif [[ -z $2 ]]; then      # If arg 2 is missing, let the user know and exit
-    echo "$(basename "$0"): Error: missing parameter: symlink destination" >&2
+    echo "$(basename "$0"): missing parameter: symlink destination" >&2
     echo
     echo "    Usage: $(basename "$0") <src-repo> <destination>" >&2
     exit 1
 fi
 
 if [[ ! -d $githome/$1 ]]; then     # Check to see if the provided repo exists on the system
-    echo "$(basename "$0"): Error: '$githome/$1': no such file or directory" >&2
+    echo "$(basename "$0"): cannot stat '$githome/$1': No such file or directory" >&2
     exit 1
 elif [[ -z "$(ls -A "$githome"/"$1")" ]]; then  # If it does, check it's not empty
-    echo "$(basename "$0"): Error: '$githome/$1': directory is empty; no files to symlink" >&2
+    echo "$(basename "$0"): '$githome/$1': directory is empty; no files to symlink" >&2
     echo "Use 'git clone <URL>' to clone the intended repository and try again." >&2
     exit 1
 else
     if [[ ! -d $2 ]]; then      # If the source repo exists and isn't empty, Check to see
                                 # if the provided destination path exists on the system
-        echo "$(basename "$0"): Error: '$2': no such file or directory" >&2
+        echo "$(basename "$0"): cannot stat '$(basename "$2")': No such file or directory" >&2
         exit 1
     else
         cp -s "$githome"/"$1"/* "$2"    # If it does, copy the contents of the source repo to the
