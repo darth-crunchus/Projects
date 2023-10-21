@@ -60,7 +60,7 @@ if [[ ! -d $githome/$1 ]]; then
     echo "$(basename "$0"): Cannot stat '$githome/$1': No such file or directory" >&2
     exit 1
 elif [[ -z "$(ls -A $githome/$1)" ]]; then
-    echo "$(basename "$0"): '$githome/$1': directory is empty; cannot restore files
+    echo "$(basename "$0"): '$githome/$1': directory is empty; no files to add, commit or push
 
 Use 'git clone' to clone the intended repository or add files to
 repository '$1' and try again" >&2
