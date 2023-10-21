@@ -1,0 +1,81 @@
+#!/bin/bash
+
+    githome="/home/$USER/githome"
+    token""
+    gituser=""
+
+if [[ $token == "" ]] || [[ $gituser == "" ]]; then
+    echo "$(basename "$0"): First-time run: Please edit this script with your
+text editor of choice and set the variables 'token' and
+'gituser'. 
+
+If you are unsure about how to obtain a token,
+please visit 'https://github.com/settings/apps', click on
+'Personal access tokens > Tokens (classic)', then click
+'Generate new token > Generate new token (classic)'. Sign
+in if necessary, add a note, select an expiry period,
+then select all appropriate scopes for the token and
+click 'Generate token'."
+    exit 0
+fi
+
+if [[ $# -eq 0 ]]; then
+    echo "$(basename "$0"): Error: missing parameter: source repository" >&2
+    echo
+    echo "    Usage: $(basename "$0") <src-repo> \"<commit-msg>\" <branch>" >&2
+    exit 1
+elif [[ $1 = -* ]]; then
+    case $1 in
+        -[hH]|--[Hh][Ee][Ll][Pp])
+            echo "$(basename "$0") - A script to automate the process of pushing
+                                     commits to github
+
+    Usage: $(basename "$0") [<src-repo>|--help] \"<commit-msg>\" <branch>
+
+    Ex.: $(basename "$0") foo \"Restructured conditional logic\" main
+
+       <src-repo> - The name of the git repository you wish to push to github
+     <commit-msg> - The changes you're making for the commit
+        -h|--help - Display this help message and exit."
+            exit 0
+            ;;
+        *)
+            echo "$(basename "$0"): invalid option -- '$1'" >&2
+            exit
+            ;;
+    esac
+elif [[ -z $2 ]]; then
+    echo "$(basename "$0"): missing parameter: commit message" >&2
+    echo
+    echo "    Usage: $(basename "$0") <src-repo> \"<commit-msg>\" <branch>" >&2
+    exit 1
+elif [[ -z $3 ]]; then
+    echo "$(basename "$0"): missing parameter: git branch" >&2
+    echo
+    echo "    Usage: $(basename "$0") <src-repo> \"<commit-msg>\" <branch>" >&2
+    exit 1
+fi
+
+if [[ ! -d $githome/$1 ]]; then
+    echo "$(basename "$0"): Cannot stat '$githome/$1': No such file or directory" >&2
+    exit 1
+elif [[ -z "$(ls -A $githome/$1)" ]]; then
+    echo "$(basename "$0"): '$githome/$1': directory is empty; cannot restore files
+
+Use 'git clone' to clone the intended repository or add files to
+repository '$1' and try again" >&2
+    exit 1
+else
+    cd $githome/$1
+    sleep 1.5
+    git add .
+    sleep 10
+    git commit -m "$2"
+    sleep 10
+    if [[ $1 = .* ]]; then
+        repo="$(echo "$1" | cut -c 2-)"
+    fi
+    git remote set-url origin https://$token@github.com/$gituser/$repo
+    sleep 2
+    git push origin $branch
+fi
