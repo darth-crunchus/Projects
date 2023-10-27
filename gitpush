@@ -1,10 +1,10 @@
 #!/bin/bash
 
-    githome="/home/$USER/githome"
-    token""
-    gituser=""
+    gitHome="/home/$USER/githome"
+    token="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"
+    gitUser="darth-crunchus"
 
-if [[ $token == "" ]] || [[ $gituser == "" ]]; then
+if [[ $token == "" ]] || [[ $gitUser == "" ]]; then
     echo "$(basename "$0"): First-time run: Please edit this script with your
 text editor of choice and set the variables 'token' and
 'gituser'. 
@@ -20,23 +20,26 @@ click 'Generate token'."
 fi
 
 if [[ $# -eq 0 ]]; then
-    echo "$(basename "$0"): Error: missing parameter: source repository" >&2
+    echo "$(basename "$0"): missing parameter: source repository" >&2
     echo
-    echo "    Usage: $(basename "$0") <src-repo> \"<commit-msg>\" <branch>" >&2
+    echo "    Usage: $(basename "$0") <src-repo> [\"file_1 file_2 .. file_n\"] \"<commit-msg>\" <branch>" >&2
     exit 1
 elif [[ $1 = -* ]]; then
     case $1 in
         -[hH]|--[Hh][Ee][Ll][Pp])
             echo "$(basename "$0") - A script to automate the process of pushing
-                                     commits to github
+          commits to github
 
-    Usage: $(basename "$0") [<src-repo>|--help] \"<commit-msg>\" <branch>
+    Usage: $(basename "$0") [src-repo|--help] [\"File_1 File_2 .. File_n\"] \"commit-msg\" branch
 
-    Ex.: $(basename "$0") foo \"Restructured conditional logic\" main
+    Ex.: $(basename "$0") foo \"myfile myfile2\" \"Restructured conditional logic\" main
 
-       <src-repo> - The name of the git repository you wish to push to github
-     <commit-msg> - The changes you're making for the commit
-        -h|--help - Display this help message and exit."
+         src-repo - The name of the git repository you wish to push to github.
+        filenames - file names are optional. $(basename "$0") will add all files in
+                    src-repo if individual files are not specified.
+       commit-msg - The changes you're making for the commit.
+           branch -
+       -h, --help - Display this help message and exit."
             exit 0
             ;;
         *)
@@ -44,40 +47,52 @@ elif [[ $1 = -* ]]; then
             exit
             ;;
     esac
-elif [[ -z $2 ]]; then
-    echo "$(basename "$0"): missing parameter: commit message" >&2
-    echo
-    echo "    Usage: $(basename "$0") <src-repo> \"<commit-msg>\" <branch>" >&2
-    exit 1
-elif [[ -z $3 ]]; then
-    echo "$(basename "$0"): missing parameter: git branch" >&2
-    echo
-    echo "    Usage: $(basename "$0") <src-repo> \"<commit-msg>\" <branch>" >&2
-    exit 1
 fi
 
-if [[ ! -d $githome/$1 ]]; then
-    echo "$(basename "$0"): Cannot stat '$githome/$1': No such file or directory" >&2
+if [[ ! -d $gitHome/$1 ]]; then
+    echo "$(basename "$0"): cannot stat '$1': No such file or directory" >&2
     exit 1
-elif [[ -z "$(ls -A $githome/$1)" ]]; then
-    echo "$(basename "$0"): '$githome/$1': directory is empty; no files to add, commit or push
+elif [[ -z "$(ls -A "$gitHome"/"$1")" ]]; then
+    echo "$(basename "$0"): '$1': directory is empty; no files to add, commit or push
 
-Use 'git clone' to clone the intended repository or add files to
-repository '$1' and try again" >&2
+Use 'git clone' to clone the intended repository  or add files to
+repository '$1' and try again." >&2
     exit 1
 else
-    cd $githome/$1
+    cd "$gitHome"/"$1" || exit 1
     sleep 1.5
-    git add .
-    sleep 10
-    git commit -m "$2"
-    sleep 10
-    if [[ $1 = .* ]]; then
+    if [[ $1 = .* ]] ; then
         repo="$(echo "$1" | cut -c 2-)"
     else
         repo=$1
     fi
-    git remote set-url origin https://$token@github.com/$gituser/$repo
-    sleep 2
-    git push origin $branch
+    if [[ $# -lt 2 ]] ; then
+        echo "$(basename "$0"): missing parameter: commit message" >&2
+        echo
+        echo "    Usage: $(basename "$0") [src-repo|--help] [\"File_1 File_2 .. File_n\"] \
+\"commit-msg\" branch" >&2
+        exit 1
+    elif [[ $# -lt 3 ]] ; then
+        echo "$(basename "$0"): missing parameter: git branch" >&2
+        echo
+        echo "    Usage: $(basename "$0") [src-repo|--help] [\"File_1 File_2 .. File_n\"] \
+\"commit-msg\" branch" >&2
+        exit 1
+    elif [[ $# -eq 3 ]] ; then
+        git add .
+        sleep 10
+        git commit -m \""$2"\"
+        sleep 10
+        git remote set-url origin https://$token@github.com/$gitUser/"$repo"
+        sleep 2
+        git push origin "$3"
+    elif [[ $# -eq 4 ]] ; then
+        git add "$2"
+        sleep 10
+        git commit -m \""$3"\"
+        sleep 10
+        git remote set-url origin https://$token@github.com/$gitUser/"$repo"
+        sleep 2
+        git push origin "$4"
+    fi
 fi
