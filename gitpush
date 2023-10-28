@@ -1,8 +1,8 @@
 #!/bin/bash
 
     gitHome="/home/$USER/githome"
-    token="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"
-    gitUser="darth-crunchus"
+    token=""
+    gitUser=""
 
 if [[ $token == "" ]] || [[ $gitUser == "" ]]; then
     echo "$(basename "$0"): First-time run: Please edit this script with your
