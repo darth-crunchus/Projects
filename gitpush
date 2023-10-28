@@ -1,11 +1,7 @@
 #!/bin/bash
 
     gitHome="/home/$USER/githome"
-<<<<<<< HEAD
-    token=""
-=======
-    token="$(cat ~/githome/.mytoken)"
->>>>>>> 692433a ("updated gitpush script")
+    token="$(cat $gitHome/.mytoken)"
     gitUser=""
 
 if [[ $token == "" ]] || [[ $gitUser == "" ]]; then
